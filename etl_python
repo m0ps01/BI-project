@@ -1,0 +1,20 @@
+import pandas as pd
+import sqlite3
+
+# 1. Загружаем данные
+df = pd.read_csv('credit_risk_dataset.csv')
+
+# 2. Очистка (ETL - Transform)
+# Удаляем строки с пропусками в важных колонках
+df = df.dropna(subset=['loan_status', 'loan_grade', 'loan_amnt', 'loan_intent'])
+
+
+# Создадим колонку с расшифровкой статуса для наглядности
+df['status_text'] = df['loan_status'].apply(lambda x: 'Default' if x == 1 else 'Paid')
+
+# 3. Загрузка (ETL - Load) в базу SQLite
+conn = sqlite3.connect('risk_project.db')
+df.to_sql('loans', conn, if_exists='replace', index=False)
+conn.close()
+
+print(f"Данные загружены! Всего строк: {len(df)}")
